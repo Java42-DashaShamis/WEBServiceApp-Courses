@@ -22,6 +22,10 @@ public class GlobalExceptionsHandler {
 		LOG.error("Server has thrown exception of request with message: {}\n",e.getMessage());
 		return e.getMessage();
 	}
+	/* V.R.
+	 * What about exception processing code 404 
+	 * (Resource not found exception)
+	 */
 	@ExceptionHandler(RuntimeException.class)
 	@ResponseStatus(value=HttpStatus.INTERNAL_SERVER_ERROR) 
 	String getStandardExceptionText(RuntimeException e) {

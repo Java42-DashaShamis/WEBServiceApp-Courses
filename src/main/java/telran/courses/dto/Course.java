@@ -1,5 +1,6 @@
 package telran.courses.dto;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import javax.validation.constraints.*;
@@ -10,7 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 
-public class Course {
+public class Course  {
 	
 	@Range(min = 1000000, max = 9999999)
 	public Integer id = (int) (1000000 + Math.round(Math.random() * (9999999 - 1000000)));;
@@ -27,6 +28,7 @@ public class Course {
 	@Range(min = 80, max = 500)
 	public Integer hours;
 	@NotNull(message = "Date is mandatory")
+	// V.R. @DateTimeFormat is redudant in this case
 	@DateTimeFormat(pattern="dd/MM/yyyy")
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	public LocalDate openingDate;
