@@ -30,6 +30,7 @@ public class CoursesSecurityConfigurer extends WebSecurityConfigurerAdapter {
 			http.authorizeHttpRequests().antMatchers(HttpMethod.GET).hasAnyRole("USER", "ADMIN"); 
 			http.authorizeHttpRequests().anyRequest().hasRole("ADMIN");
 		}else {
+			// V.R. It is OK
 			http.authorizeHttpRequests().anyRequest().permitAll();
 		}
 	}

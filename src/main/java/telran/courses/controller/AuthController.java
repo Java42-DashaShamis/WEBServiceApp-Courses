@@ -36,10 +36,19 @@ public class AuthController {
 	LoginResponse login(@RequestBody @Valid LoginData loginData) {
 		LOG.debug("login data are email {}, password {}", loginData.email, loginData.password);
 		Account account = accounting.getAccount(loginData.email);
+		/* V.R. The following line has to be instead of previous one
+		Account account = securityEnable ? accounting.getAccount(loginData.email) : new Account("admin@tel-ran.co.il",
+				"$2a$10$rSdI0lSvHmwhzOxLQ1olOujYO4gIGgRhst03Si3vKxtpASI/4W3Ni", "ADMIN");
+				*/
+// V.R. Additional line
+// V.R.		if(securityEnable)
 		if(account == null || !passwordEncoder.matches(loginData.password, account.getPasswordHash())) {
 			throw new BadRequestException("Wrong credentials");
 		}
 		LoginResponse response = new LoginResponse(getToken(loginData), securityEnable ? account.getRole() : "ADMIN");
+/* V.R.	The following line has to be instead of previous one
+ * LoginResponse response = new LoginResponse(securityEnable ? getToken(loginData) : "", account.getRole());
+ */
 		LOG.debug("accessToken: {}, role: {}", response.accessToken, response.role);
 		return response;
 	}
