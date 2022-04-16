@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CoursesServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CoursesServiceApplication.class, args);
+		SpringApplication.run(CoursesServiceApplication.class, args); //builds app-context and put there first bean
 	}
 
 }

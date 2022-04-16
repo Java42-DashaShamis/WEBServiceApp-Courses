@@ -19,13 +19,15 @@ public class CoursesServiceImpl implements CoursesService{
 	
 	private static final long serialVersionUID = 1L;
 
-	@Value("${app.file}")
+	private static final int MILLIS_IN_MINUTES = 5000;
+
+	@Value("${app.file.name}")
 	private transient String fileName; 
 	
 	@Value("${app.interval.minutes: 1}")
 	private transient int interval;
 	
-	private transient SavingServiceThread savingThread;
+	//private transient SavingServiceThread savingThread;
 	
 	static Logger LOG = LoggerFactory.getLogger(CoursesService.class);
 		
@@ -82,27 +84,28 @@ public class CoursesServiceImpl implements CoursesService{
 	}
 	
 	
-	@Override
-	public void restore() {
+	
+	private void restore() {
 		File inputFile = new File(fileName);
 		if (inputFile.exists()) {
 			try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(inputFile))) {
 				CoursesServiceImpl coursesFromFile =  (CoursesServiceImpl) input.readObject();
 				this.courses = coursesFromFile.courses;
+				LOG.debug("service has been restored from file {}", fileName);
+			} catch (FileNotFoundException e) {
+				LOG.warn("service has not been restored - no file {} found", fileName);;
 			} catch (Exception e) {
 				throw new RuntimeException(e.getMessage());
 			} 
 		}
 		
 	}
-
 	
-	@Override
-	public void save() {
+	private void save() {
 		try(ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(fileName))) {
 			output.writeObject(this);
 		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
+			throw new RuntimeException(e.getMessage());
 		}
 		
 	}
@@ -111,15 +114,29 @@ public class CoursesServiceImpl implements CoursesService{
 	void restoreInvocation() {
 		LOG.debug("interval: {}", interval);
 		restore();
-		savingThread = new SavingServiceThread(interval, this);
-		savingThread.start();
+		Thread thread = new Thread(() -> {
+			while(true) {
+				try {
+					Thread.sleep(interval*MILLIS_IN_MINUTES);
+					save();
+					LOG.debug("Saving");
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					LOG.debug("Saving is interrapted");
+				}
+				LOG.debug("Courses data saved into file {}", fileName);
+			}
+			
+		});
+		thread.setDaemon(true);
+		thread.start();
 	}
 	
 	@PreDestroy
 	void saveInvocation() {
-		LOG.debug("Saving is stopping");
-		savingThread.setStop();
 		save();
+		LOG.debug("Courses data saved into file {}", fileName);
+		
 	}
 	
 
